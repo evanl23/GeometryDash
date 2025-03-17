@@ -1,33 +1,42 @@
+#include <stdio.h>
 #include <ncurses.h>
 #include <unistd.h>
 
-#define LEVEL_WIDTH 50
+#define SCREEN_WIDTH 50
 #define LEVEL_HEIGHT 10
+#define MAX_LEVEL_LENGTH 1000
 #define PLAYER_CHAR '@'
 #define GROUND_CHAR '_'
-#define SPIKE_CHAR '^'
+#define SPIKE_CHAR 'A'
 #define EMPTY_CHAR ' '
 
 // Game variables
-int player_x = 2, player_y = 5;
+int player_x = 2, player_y = LEVEL_HEIGHT-1;
 int velocity = 0;
 int level_offset = 0;
-int level_length = LEVEL_WIDTH - 2; // Total length of level for progress tracking
+int level_length = 0; // Total length of level for progress tracking
 int game_over = 0;
 
 // Level representation
-char level[LEVEL_HEIGHT][LEVEL_WIDTH + 1] = {
-    "_________________________________________________",
-    "_________________________________________________",
-    "                                                 ",
-    "                                                 ",
-    "                         ^                       ",
-    "                    ^^^                          ",
-    "                                                 ",
-    "_________________________________________________",
-    "_________________________________________________",
-    "                                                 "
-};
+char level[LEVEL_HEIGHT][MAX_LEVEL_LENGTH + 1];  // Storage for the level
+// Load level from file
+void load_level(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("Failed to open level file");
+        return;
+    }
+    
+    int i = 0;
+    while (fgets(level[i], MAX_LEVEL_LENGTH, file) && i < LEVEL_HEIGHT) {
+        int len = 0;
+        while (level[i][len] != '\0' && level[i][len] != '\n') len++; // Get line length
+        if (len > level_length) level_length = len; // Track longest row as level length
+        i++;
+    }
+
+    fclose(file);
+}
 
 // Function to render the game
 void render() {
@@ -35,8 +44,8 @@ void render() {
     
     // Draw the level
     for (int y = 0; y < LEVEL_HEIGHT; y++) {
-        for (int x = 0; x < LEVEL_WIDTH - 2; x++) {
-            if (x + level_offset < LEVEL_WIDTH) {
+        for (int x = 0; x < SCREEN_WIDTH - 2; x++) {
+            if (x + level_offset < MAX_LEVEL_LENGTH) {
                 mvaddch(y, x, level[y][x + level_offset]);
             }
         }
@@ -57,7 +66,7 @@ void update() {
     if (game_over) return;
 
     // Apply gravity
-    if (player_y < LEVEL_HEIGHT - 2) {
+    if (player_y < LEVEL_HEIGHT - 1) {
         velocity += 1;
         player_y += (velocity > 1) ? 1 : 0;
     }
@@ -82,18 +91,21 @@ int main() {
     nodelay(stdscr, TRUE);
     keypad(stdscr, TRUE);
 
+    // Load level
+    load_level("stereomadness.txt");
+
     while (!game_over) {
         render();
         
         // Handle input
         int ch = getch();
         if (ch == ' ') {
-            velocity = -2;
-            player_y += velocity;
+            velocity = -3.0;
+            player_y += velocity/2;
         }
 
         update();
-        usleep(100000); // Control game speed
+        usleep(50000); // Control game speed
     }
 
     // Game Over Message
