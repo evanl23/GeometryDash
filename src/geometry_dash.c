@@ -14,6 +14,7 @@
 
 #define esc 27
 #define space 32
+#define upkey '^[[A'
 
 // Game variables
 int player_x = 2, player_y = LEVEL_HEIGHT-1;
@@ -69,7 +70,7 @@ void render() {
 
     // Draw progress bar
     int progress = ((level_offset * 100) / level_length);
-    mvprintw(LEVEL_HEIGHT, 0, "Progress: %d%%", progress); // Print progress bar
+    mvprintw(1, (SCREEN_WIDTH-12)/2, "Progress: %d%%", progress); // Print progress bar
     
     refresh(); // Updates screen with new frame
 }
@@ -140,7 +141,7 @@ int main() {
             
             // Handle input
             int ch = getch();
-            if (ch == ' ' && level[player_y][player_x+level_offset] == GROUND_CHAR) {
+            if ((ch == ' ' || ch == upkey) && level[player_y][player_x+level_offset] == GROUND_CHAR) {
                 velocity = -2.5;
                 player_y += velocity;
                 
@@ -152,12 +153,12 @@ int main() {
 
         // Game Over Message
         if (success) {
-            mvprintw(LEVEL_HEIGHT + 1, 0, "Level Complete! Hit any key to exit.");
+            mvprintw(10, (SCREEN_WIDTH-36)/2, "Level Complete! Hit any key to exit.");
             nodelay(stdscr, FALSE); // Waits for key before exiting
             getch(); // Waits for input before closing 
             break;
         } else {
-            mvprintw(LEVEL_HEIGHT + 1, 0, "Game Over! Hit the space bar to try again, press escape to exit.");
+            mvprintw(10, (SCREEN_WIDTH-64)/2, "Game Over! Hit the space bar to try again, press escape to exit.");
             nodelay(stdscr, FALSE); // Waits for key before exiting
             char key = getch();
             if (key == esc) {
