@@ -133,7 +133,7 @@ int main() {
         success = 0;
 
         // Load level
-        load_level("stereomadness.txt");
+        load_level("levels/stereomadness.txt");
 
         while (!game_over) {
             render();
