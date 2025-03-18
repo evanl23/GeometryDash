@@ -2,12 +2,14 @@
 #include <ncurses.h> // Library for handling text-based interfaces in the terminal
 #include <unistd.h> // Provides access for usleep() to control game speed
 
-#define SCREEN_WIDTH 50
-#define LEVEL_HEIGHT 10
-#define MAX_LEVEL_LENGTH 1000
+#define SCREEN_WIDTH 120
+#define LEVEL_HEIGHT 20
+#define MAX_LEVEL_LENGTH 2000
 #define PLAYER_CHAR '@'
 #define GROUND_CHAR '_'
 #define SPIKE_CHAR 'A'
+#define SMALL_SPIKE '*'
+#define BEAM '|'
 #define EMPTY_CHAR ' '
 
 #define esc 27
@@ -30,7 +32,14 @@ void load_level(const char *filename) {
         perror("Failed to open level file");
         return;
     }
-    
+
+    for (int x = 0; x < LEVEL_HEIGHT; x++) {
+        for (int y = 0; y < MAX_LEVEL_LENGTH; y++) {
+            level[x][y] = EMPTY_CHAR;
+        }
+        level[x][MAX_LEVEL_LENGTH] = '\0';
+    }
+
     int i = 0;
     while (fgets(level[i], MAX_LEVEL_LENGTH, file) && i < LEVEL_HEIGHT) {
         int len = 0;
@@ -70,19 +79,29 @@ void update() {
     if (game_over) return;
 
     // Apply gravity
-    if (player_y < LEVEL_HEIGHT - 1) {
-        velocity += 1.0;
+    if (level[player_y][player_x + level_offset] == EMPTY_CHAR) {
+        velocity += 0.80;
         player_y += (velocity > 1) ? 1 : 0;
 
-        // Stop the player when hitting the ground
-        if (player_y >= LEVEL_HEIGHT) {
-            player_y = LEVEL_HEIGHT;  // Lock position to ground
-            velocity = 0;  // Stop movement
-        }
+        // // Stop the player when hitting the ground
+        // if (player_y >= LEVEL_HEIGHT) {
+        //     player_y = LEVEL_HEIGHT;  // Lock position to ground
+        //     velocity = 0;  // Stop movement
+        // }
+    } else {
+        velocity = 0;
     }
 
     // Collision detection
     if (level[player_y][player_x + level_offset] == SPIKE_CHAR) {
+        game_over = 1;
+        success = 0;
+    }
+    else if (level[player_y][player_x + level_offset] == SMALL_SPIKE) {
+        game_over = 1;
+        success = 0;
+    }
+    else if (level[player_y][player_x + level_offset] == BEAM) {
         game_over = 1;
         success = 0;
     }
@@ -121,14 +140,14 @@ int main() {
             
             // Handle input
             int ch = getch();
-            if (ch == ' ' && level[player_y][player_x+level_offset] == '_') {
+            if (ch == ' ' && level[player_y][player_x+level_offset] == GROUND_CHAR) {
                 velocity = -2.5;
                 player_y += velocity;
                 
             }
 
             update();
-            usleep(50000); // Control game speed
+            usleep(40000); // Control game speed
         }
 
         // Game Over Message
@@ -142,9 +161,8 @@ int main() {
             nodelay(stdscr, FALSE); // Waits for key before exiting
             char key = getch();
             if (key == esc) {
-                break; 
-            }
-            else if (key == space) {
+                break;
+            } else if (key == space) {
                 continue;
             }
         }
@@ -152,3 +170,5 @@ int main() {
     endwin();
     return 0;
 }
+
+// Blocks 4 _ wide, 4 _ in bew
