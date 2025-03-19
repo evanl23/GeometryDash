@@ -3,11 +3,12 @@
 #include <unistd.h> // Provides access for usleep() to control game speed
 
 #define SCREEN_WIDTH 120
-#define LEVEL_HEIGHT 20
+#define LEVEL_HEIGHT 18
 #define MAX_LEVEL_LENGTH 2000
 #define PLAYER_CHAR '@'
 #define GROUND_CHAR '_'
 #define SPIKE_CHAR 'A'
+#define DOWN_SPIKE 'V'
 #define SMALL_SPIKE '*'
 #define BEAM '|'
 #define EMPTY_CHAR ' '
@@ -81,7 +82,7 @@ void update() {
 
     // Apply gravity
     if (level[player_y][player_x + level_offset] == EMPTY_CHAR) {
-        velocity += 0.80;
+        velocity += 0.65;
         player_y += (velocity > 1) ? 1 : 0;
 
         // // Stop the player when hitting the ground
@@ -103,6 +104,10 @@ void update() {
         success = 0;
     }
     else if (level[player_y][player_x + level_offset] == BEAM) {
+        game_over = 1;
+        success = 0;
+    }
+    else if (level[player_y][player_x + level_offset] == DOWN_SPIKE) {
         game_over = 1;
         success = 0;
     }
@@ -142,7 +147,7 @@ int main() {
             // Handle input
             int ch = getch();
             if ((ch == ' ' || ch == upkey) && level[player_y][player_x+level_offset] == GROUND_CHAR) {
-                velocity = -2.5;
+                velocity = -2.2;
                 player_y += velocity;
                 
             }
