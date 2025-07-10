@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -lncurses
-TARGET = dash
+TARGET = terminal-dash
 SRC = src/geometry_dash.c
 
 all: $(TARGET)
