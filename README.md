@@ -29,9 +29,7 @@ terminal-dash
 
 
 ## 🎯 Goal
-Hit the spacebar or up arrow to jump and avoid the spikes.
-
-Reach 100% without touching any spikes!
+Navigate the level using the spacebar or up arrow. Reach 100% without touching any spikes!
 
 ![Death screen](img/terminal-dash-death.png)
 
