@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ncurses.h> // Library for handling text-based interfaces in the terminal
 #include <unistd.h> // Provides access for usleep() to control game speed
 
