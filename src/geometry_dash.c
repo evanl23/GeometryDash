@@ -167,7 +167,7 @@ void update() {
 }
 
 // Main function
-int main() {
+int main(int argc, char* argv[]) {
     initscr(); // Starts ncurses mode
     init_colors(); // Initialize color support
 
@@ -186,7 +186,16 @@ int main() {
         success = 0;
 
         // Load level
-        load_level("levels/stereomadness.txt");
+        const char *level_path;
+        if (access("levels/stereomadness.txt", R_OK) == 0) {
+            level_path = "levels/stereomadness.txt";
+        } else if (argc > 1) {
+            level_path = argv[1];
+        } else {
+            fprintf(stderr, "Error: level file not found.\n");
+            exit(1);
+        }
+        load_level(level_path);
 
         while (!game_over) {
             render();
