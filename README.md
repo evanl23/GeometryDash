@@ -22,7 +22,7 @@ brew tap evanl23/homebrew-formulae
 brew install terminal-dash
 ```
 
-To play, simple run:
+To play, simply run:
 ```bash
 terminal-dash
 ```
